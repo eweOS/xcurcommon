@@ -1,0 +1,6 @@
+
+Name: xcurcommon
+Description: Common implementation of xcursor data format
+Version: 0.0.1
+Cflags: -I${includedir}
+Libs: -L${libdir} -lxcurcommon
