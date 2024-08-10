@@ -1,5 +1,6 @@
 /*
  * Copyright © 2002 Keith Packard
+ * Copyright (c) 2024 eweOS developers
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -24,8 +25,6 @@
 #define _XCURSOR_H_
 #include <stdio.h>
 #include <stdint.h>
-#include <X11/Xfuncproto.h>
-#include <X11/Xlib.h>
 
 typedef int		XcursorBool;
 typedef uint32_t	XcursorUInt;
@@ -199,18 +198,6 @@ typedef struct _XcursorImages {
     char	    *name;	/* name used to load images */
 } XcursorImages;
 
-typedef struct _XcursorCursors {
-    Display	    *dpy;	/* Display holding cursors */
-    int		    ref;	/* reference count */
-    int		    ncursor;	/* number of cursors */
-    Cursor	    *cursors;	/* array of cursors */
-} XcursorCursors;
-
-typedef struct _XcursorAnimate {
-    XcursorCursors   *cursors;	/* list of cursors to use */
-    int		    sequence;	/* which cursor is next */
-} XcursorAnimate;
-
 typedef struct _XcursorFile XcursorFile;
 
 struct _XcursorFile {
@@ -226,8 +213,6 @@ typedef struct _XcursorComments {
 } XcursorComments;
 
 #define XCURSOR_CORE_THEME  "core"
-
-_XFUNCPROTOBEGIN
 
 /*
  * Manage Image objects
@@ -249,27 +234,6 @@ XcursorImagesDestroy (XcursorImages *images);
 
 void
 XcursorImagesSetName (XcursorImages *images, const char *name);
-
-/*
- * Manage Cursor objects
- */
-XcursorCursors *
-XcursorCursorsCreate (Display *dpy, int size);
-
-void
-XcursorCursorsDestroy (XcursorCursors *cursors);
-
-/*
- * Manage Animate objects
- */
-XcursorAnimate *
-XcursorAnimateCreate (XcursorCursors *cursors);
-
-void
-XcursorAnimateDestroy (XcursorAnimate *animate);
-
-Cursor
-XcursorAnimateNext (XcursorAnimate *animate);
 
 /*
  * Manage Comment objects
@@ -378,37 +342,6 @@ int
 XcursorLibraryShape (const char *library);
 
 /*
- * Image/Cursor APIs
- */
-
-Cursor
-XcursorImageLoadCursor (Display *dpy, const XcursorImage *image);
-
-XcursorCursors *
-XcursorImagesLoadCursors (Display *dpy, const XcursorImages *images);
-
-Cursor
-XcursorImagesLoadCursor (Display *dpy, const XcursorImages *images);
-
-/*
- * Filename/Cursor APIs
- */
-Cursor
-XcursorFilenameLoadCursor (Display *dpy, const char *file);
-
-XcursorCursors *
-XcursorFilenameLoadCursors (Display *dpy, const char *file);
-
-/*
- * Library/Cursor APIs
- */
-Cursor
-XcursorLibraryLoadCursor (Display *dpy, const char *file);
-
-XcursorCursors *
-XcursorLibraryLoadCursors (Display *dpy, const char *file);
-
-/*
  * Shape/Image APIs
  */
 
@@ -418,83 +351,5 @@ XcursorShapeLoadImage (unsigned int shape, const char *theme, int size);
 XcursorImages *
 XcursorShapeLoadImages (unsigned int shape, const char *theme, int size);
 
-/*
- * Shape/Cursor APIs
- */
-Cursor
-XcursorShapeLoadCursor (Display *dpy, unsigned int shape);
-
-XcursorCursors *
-XcursorShapeLoadCursors (Display *dpy, unsigned int shape);
-
-/*
- * This is the function called by Xlib when attempting to
- * load cursors from XCreateGlyphCursor.  The interface must
- * not change as Xlib loads 'libXcursor.so' instead of
- * a specific major version
- */
-Cursor
-XcursorTryShapeCursor (Display	    *dpy,
-		       Font	    source_font,
-		       Font	    mask_font,
-		       unsigned int source_char,
-		       unsigned int mask_char,
-		       XColor _Xconst *foreground,
-		       XColor _Xconst *background);
-
-void
-XcursorNoticeCreateBitmap (Display	*dpy,
-			   Pixmap	pid,
-			   unsigned int width,
-			   unsigned int height);
-
-void
-XcursorNoticePutBitmap (Display	    *dpy,
-			Drawable    draw,
-			XImage	    *image);
-
-Cursor
-XcursorTryShapeBitmapCursor (Display		*dpy,
-			     Pixmap		source,
-			     Pixmap		mask,
-			     XColor		*foreground,
-			     XColor		*background,
-			     unsigned int	x,
-			     unsigned int	y);
-
 #define XCURSOR_BITMAP_HASH_SIZE    16
-
-void
-XcursorImageHash (XImage	*image,
-		  unsigned char	hash[XCURSOR_BITMAP_HASH_SIZE]);
-
-/*
- * Display information APIs
- */
-XcursorBool
-XcursorSupportsARGB (Display *dpy);
-
-XcursorBool
-XcursorSupportsAnim (Display *dpy);
-
-XcursorBool
-XcursorSetDefaultSize (Display *dpy, int size);
-
-int
-XcursorGetDefaultSize (Display *dpy);
-
-XcursorBool
-XcursorSetTheme (Display *dpy, const char *theme);
-
-char *
-XcursorGetTheme (Display *dpy);
-
-XcursorBool
-XcursorGetThemeCore (Display *dpy);
-
-XcursorBool
-XcursorSetThemeCore (Display *dpy, XcursorBool theme_core);
-
-_XFUNCPROTOEND
-
 #endif

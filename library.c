@@ -1,5 +1,6 @@
 /*
  * Copyright © 2002 Keith Packard
+ * Copyright (c) 2024 eweOS developers
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -352,75 +353,6 @@ XcursorLibraryLoadImages (const char *file, const char *theme, int size)
     return images;
 }
 
-Cursor
-XcursorLibraryLoadCursor (Display *dpy, const char *file)
-{
-    int		    size = XcursorGetDefaultSize (dpy);
-    char	    *theme = XcursorGetTheme (dpy);
-    XcursorImages   *images = XcursorLibraryLoadImages (file, theme, size);
-    Cursor	    cursor;
-
-    if (!file)
-	return 0;
-
-    if (!images)
-    {
-	int id = XcursorLibraryShape (file);
-
-	if (id >= 0)
-	    return _XcursorCreateFontCursor (dpy, (unsigned) id);
-	else
-	    return 0;
-    }
-    cursor = XcursorImagesLoadCursor (dpy, images);
-    XcursorImagesDestroy (images);
-#if defined HAVE_XFIXES && XFIXES_MAJOR >= 2
-    XFixesSetCursorName (dpy, cursor, file);
-#endif
-    return cursor;
-}
-
-XcursorCursors *
-XcursorLibraryLoadCursors (Display *dpy, const char *file)
-{
-    int		    size = XcursorGetDefaultSize (dpy);
-    char	    *theme = XcursorGetTheme (dpy);
-    XcursorImages   *images = XcursorLibraryLoadImages (file, theme, size);
-    XcursorCursors  *cursors;
-
-    if (!file)
-	return NULL;
-
-    if (!images)
-    {
-	int id = XcursorLibraryShape (file);
-
-	if (id >= 0)
-	{
-	    cursors = XcursorCursorsCreate (dpy, 1);
-	    if (cursors)
-	    {
-		cursors->cursors[0] = _XcursorCreateFontCursor (dpy, (unsigned) id);
-		if (cursors->cursors[0] == None)
-		{
-		    XcursorCursorsDestroy (cursors);
-		    cursors = NULL;
-		}
-		else
-		    cursors->ncursor = 1;
-	    }
-	}
-	else
-	    cursors = NULL;
-    }
-    else
-    {
-	cursors = XcursorImagesLoadCursors (dpy, images);
-	XcursorImagesDestroy (images);
-    }
-    return cursors;
-}
-
 static const char _XcursorStandardNames[] =
 	"X_cursor\0"
 	"arrow\0"
@@ -532,28 +464,6 @@ XcursorShapeLoadImages (unsigned int shape, const char *theme, int size)
 
     if (id < NUM_STANDARD_NAMES)
 	return XcursorLibraryLoadImages (STANDARD_NAME (id), theme, size);
-    else
-	return NULL;
-}
-
-Cursor
-XcursorShapeLoadCursor (Display *dpy, unsigned int shape)
-{
-    unsigned int    id = shape >> 1;
-
-    if (id < NUM_STANDARD_NAMES)
-	return XcursorLibraryLoadCursor (dpy, STANDARD_NAME (id));
-    else
-	return 0;
-}
-
-XcursorCursors *
-XcursorShapeLoadCursors (Display *dpy, unsigned int shape)
-{
-    unsigned int    id = shape >> 1;
-
-    if (id < NUM_STANDARD_NAMES)
-	return XcursorLibraryLoadCursors (dpy, STANDARD_NAME (id));
     else
 	return NULL;
 }
