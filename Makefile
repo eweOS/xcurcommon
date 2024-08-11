@@ -53,4 +53,5 @@ install-compatible: xcurcommon.h libxcurcommon.so
 	- mkdir -p $(DESTDIR)$(INCDIR)/X11/Xcursor
 	- ln -s ../../xcurcommon.h $(DESTDIR)$(INCDIR)/X11/Xcursor/Xcursor.h
 	- ln -s libxcurcommon.so $(DESTDIR)$(INCDIR)/libXcursor.so
+	- mkdir -p $(DESTDIR)$(LIBDIR)/pkgconfig
 	- ln -s xcurcommon.pc $(DESTDIR)$(LIBDIR)/pkgconfig/xcursor.pc
